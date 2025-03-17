@@ -362,12 +362,38 @@ location = st.text_input("Enter your preferred location (e.g., 'New York', 'Remo
 if st.session_state.resume_parsed and st.session_state.suggested_job_roles:
     st.markdown("### Suggested Job Roles Based on Your Skills")
     
-    # Display job roles as selectable options
+    # Add custom roles to session state if not already there
+    if 'custom_job_roles' not in st.session_state:
+        st.session_state.custom_job_roles = []
+    
+    # Combine suggested and custom roles
+    all_job_roles = list(st.session_state.suggested_job_roles) + list(st.session_state.custom_job_roles)
+    
+    # Create a row with text input and add button
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        custom_role = st.text_input("Add your own job role", key="custom_role_input")
+    with col2:
+        if st.button("Add Role"):
+            if custom_role and custom_role not in all_job_roles:
+                st.session_state.custom_job_roles.append(custom_role)
+                st.success(f"Added: {custom_role}")
+                # Rerun to update the interface
+                st.rerun()
+    
+    # Display job roles as selectable options (both suggested and custom)
     selected_roles = st.multiselect(
         "Select job roles to search for",
-        options=st.session_state.suggested_job_roles,
+        options=all_job_roles,
         default=st.session_state.suggested_job_roles
     )
+    
+    # Display job roles as selectable options
+    # selected_roles = st.multiselect(
+    #     "Select job roles to search for",
+    #     options=st.session_state.suggested_job_roles,
+    #     default=st.session_state.suggested_job_roles
+    # )
     
     # Add filter options to sidebar
     st.sidebar.markdown("### Filter Options")
